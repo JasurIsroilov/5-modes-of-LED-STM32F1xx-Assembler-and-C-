@@ -1,0 +1,297 @@
+
+Led_Assembler.elf:     file format elf32-littlearm
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .isr_vector   00000130  08000000  08000000  00010000  2**0
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  1 .text         00000154  08000130  08000130  00010130  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  2 .rodata       00000000  08000284  0800028c  0001028c  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  3 .ARM.extab    00000000  08000284  08000284  0001028c  2**0
+                  CONTENTS
+  4 .ARM          00000000  08000284  08000284  0001028c  2**0
+                  CONTENTS
+  5 .preinit_array 00000000  08000284  0800028c  0001028c  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  6 .init_array   00000004  08000284  08000284  00010284  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+  7 .fini_array   00000004  08000288  08000288  00010288  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+  8 .data         00000000  20000000  20000000  0001028c  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  9 .bss          0000001c  20000000  0800028c  00020000  2**2
+                  ALLOC
+ 10 ._user_heap_stack 00000604  2000001c  0800028c  0002001c  2**0
+                  ALLOC
+ 11 .ARM.attributes 00000029  00000000  00000000  0001028c  2**0
+                  CONTENTS, READONLY
+ 12 .debug_line   000000aa  00000000  00000000  000102b5  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 13 .debug_info   00000022  00000000  00000000  0001035f  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 14 .debug_abbrev 00000012  00000000  00000000  00010381  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 15 .debug_aranges 00000028  00000000  00000000  00010398  2**3
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 16 .debug_str    0000005e  00000000  00000000  000103c0  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 17 .debug_ranges 00000020  00000000  00000000  00010420  2**3
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+
+Disassembly of section .text:
+
+08000130 <__do_global_dtors_aux>:
+ 8000130:	b510      	push	{r4, lr}
+ 8000132:	4c05      	ldr	r4, [pc, #20]	; (8000148 <__do_global_dtors_aux+0x18>)
+ 8000134:	7823      	ldrb	r3, [r4, #0]
+ 8000136:	b933      	cbnz	r3, 8000146 <__do_global_dtors_aux+0x16>
+ 8000138:	4b04      	ldr	r3, [pc, #16]	; (800014c <__do_global_dtors_aux+0x1c>)
+ 800013a:	b113      	cbz	r3, 8000142 <__do_global_dtors_aux+0x12>
+ 800013c:	4804      	ldr	r0, [pc, #16]	; (8000150 <__do_global_dtors_aux+0x20>)
+ 800013e:	f3af 8000 	nop.w
+ 8000142:	2301      	movs	r3, #1
+ 8000144:	7023      	strb	r3, [r4, #0]
+ 8000146:	bd10      	pop	{r4, pc}
+ 8000148:	20000000 	.word	0x20000000
+ 800014c:	00000000 	.word	0x00000000
+ 8000150:	0800026c 	.word	0x0800026c
+
+08000154 <frame_dummy>:
+ 8000154:	b508      	push	{r3, lr}
+ 8000156:	4b03      	ldr	r3, [pc, #12]	; (8000164 <frame_dummy+0x10>)
+ 8000158:	b11b      	cbz	r3, 8000162 <frame_dummy+0xe>
+ 800015a:	4903      	ldr	r1, [pc, #12]	; (8000168 <frame_dummy+0x14>)
+ 800015c:	4803      	ldr	r0, [pc, #12]	; (800016c <frame_dummy+0x18>)
+ 800015e:	f3af 8000 	nop.w
+ 8000162:	bd08      	pop	{r3, pc}
+ 8000164:	00000000 	.word	0x00000000
+ 8000168:	20000004 	.word	0x20000004
+ 800016c:	0800026c 	.word	0x0800026c
+
+08000170 <Reset_Handler>:
+
+  .section .text.Reset_Handler
+  .weak Reset_Handler
+  .type Reset_Handler, %function
+Reset_Handler:
+	ldr  	r0, =_estack
+ 8000170:	483c      	ldr	r0, [pc, #240]	; (8000264 <push_delay_loop+0xa>)
+	mov  	sp, r0         				 /* set stack pointer */
+ 8000172:	4685      	mov	sp, r0
+
+	mov32	r0, PERIPH_BB_BASE+ \
+ 8000174:	f240 3008 	movw	r0, #776	; 0x308
+ 8000178:	f2c4 2042 	movt	r0, #16962	; 0x4242
+	//mov32	r7, RCC_APB2ENR
+	//mov		r8, #0x04
+	//str		r8, [r7]
+
+	//Настройка вывода PA5
+	mov		r1, #1						@ включаем тактирование порта A (в 5-й бит RCC_APB2ENR пишем '1`)
+ 800017c:	f04f 0101 	mov.w	r1, #1
+	str 	r1, [r0]					@ загружаем это значение
+ 8000180:	6001      	str	r1, [r0, #0]
+	mov32	r0, GPIOA_CRL				@ адрес порта
+ 8000182:	f640 0000 	movw	r0, #2048	; 0x800
+ 8000186:	f2c4 0001 	movt	r0, #16385	; 0x4001
+	mov		r1, #0x03					@ 4-битная маска настроек для Output mode 50mHz, Push-Pull ("0011")
+ 800018a:	f04f 0103 	mov.w	r1, #3
+	ldr		r2, [r0]					@ считать порт
+ 800018e:	6802      	ldr	r2, [r0, #0]
+    bfi		r2, r1, #20, #4    			@ скопировать биты маски в позицию PIN5
+ 8000190:	f361 5217 	bfi	r2, r1, #20, #4
+    str		r2, [r0]					@ загрузить результат в регистр настройки порта
+ 8000194:	6002      	str	r2, [r0, #0]
+	//Настройка вывода PA0
+    mov		r1, #0x08					@Настройка MODE00 и CNF10
+ 8000196:	f04f 0108 	mov.w	r1, #8
+    bfi		r2, r1, #0, #4				@Запись в регистр CRL 0x08(1000) в 0ю позицию по ширине 4бита
+ 800019a:	f361 0203 	bfi	r2, r1, #0, #4
+    str		r2, [r0]					@Запись найстройки CRL в память GPIO_CRL
+ 800019e:	6002      	str	r2, [r0, #0]
+	//Настройка вывода PA1
+    mov		r1, #0x08					@Настройка MODE00 и CNF10
+ 80001a0:	f04f 0108 	mov.w	r1, #8
+    bfi		r2, r1, #4, #4				@Запись в регистр CRL 0x08(1000) в 4ю позицию по ширине 4бита
+ 80001a4:	f361 1207 	bfi	r2, r1, #4, #4
+    str		r2, [r0]					@Запись найстройки CRL в память GPIO_CRL
+ 80001a8:	6002      	str	r2, [r0, #0]
+
+    mov32	r0, GPIOA_BSRR				@ адрес порта выходных сигналов
+ 80001aa:	f640 0010 	movw	r0, #2064	; 0x810
+ 80001ae:	f2c4 0001 	movt	r0, #16385	; 0x4001
+    mov32	r1, PERIPH_BB_BASE+ \
+ 80001b2:	f240 1100 	movw	r1, #256	; 0x100
+ 80001b6:	f2c4 2121 	movt	r1, #16929	; 0x4221
+				(GPIOA_IDR-PERIPH_BASE)*32 + \
+				0*4						@адрес пина GPIOA_IDR_IDR0 ввода/вывода только для чтения
+	mov32	r2, PERIPH_BB_BASE+ \
+ 80001ba:	f240 1204 	movw	r2, #260	; 0x104
+ 80001be:	f2c4 2221 	movt	r2, #16929	; 0x4221
+				(GPIOA_IDR-PERIPH_BASE)*32 + \
+				1*4						@адрес пина GPIOA_IDR_IDR1 ввода/вывода только для чтения
+	mov32	r12, #12000			//Период T
+ 80001c2:	f642 6ce0 	movw	ip, #12000	; 0x2ee0
+ 80001c6:	f2c0 0c00 	movt	ip, #0
+	mov32	r11, #2000			//Ширина импульса W
+ 80001ca:	f240 7bd0 	movw	fp, #2000	; 0x7d0
+ 80001ce:	f2c0 0b00 	movt	fp, #0
+	mov32	r10, #1				//Счетчик n
+ 80001d2:	f240 0a01 	movw	sl, #1
+ 80001d6:	f2c0 0a00 	movt	sl, #0
+
+080001da <loop>:
+
+loop:									@ Бесконечный цикл
+	mov32	r3, #GPIO_BSRR_BS5		//включаем светодиод
+ 80001da:	f240 0320 	movw	r3, #32
+ 80001de:	f2c0 0300 	movt	r3, #0
+	mov32	r4,	#GPIO_BSRR_BR5		//выключаем светодиод
+ 80001e2:	f240 0400 	movw	r4, #0
+ 80001e6:	f2c0 0420 	movt	r4, #32
+
+	//PA0 = 1
+	ldr		r5,	[r1]				@ Загрузка данных из вывода GPIOA_IDR->GPIO_IDR0
+ 80001ea:	680d      	ldr	r5, [r1, #0]
+	cmp		r5, #0					@ Сравниваем r5 с логической 0 (Проверка на нажатие кнопки pa0)
+ 80001ec:	2d00      	cmp	r5, #0
+	it		ne						@ Если не равны
+ 80001ee:	bf18      	it	ne
+	bne		pa0						@ Переходим по метке pa0 (скипаем строки 82-86)
+ 80001f0:	e008      	bne.n	8000204 <pa0>
+	add		r10, #1					@ r10=r10+1
+ 80001f2:	f10a 0a01 	add.w	sl, sl, #1
+	cmp		r10, #6					@ Сравниваем r10 и 6
+ 80001f6:	f1ba 0f06 	cmp.w	sl, #6
+	it		cs						@ Если r10 больше либо равно 6
+ 80001fa:	bf28      	it	cs
+	subcs	r10, #1					@ r10=r10-1
+ 80001fc:	f1aa 0a01 	subcs.w	sl, sl, #1
+	bl		push_delay				@ Переходим по метке push_delay (задержа при нажатии кнопки)
+ 8000200:	f000 f826 	bl	8000250 <push_delay>
+
+08000204 <pa0>:
+
+	pa0:
+	//PA1 = 1
+	ldr		r5,	[r2]				@Загрузка данных из вывода GPIOA_IDR->GPIO_IDR1
+ 8000204:	6815      	ldr	r5, [r2, #0]
+	cmp		r5, #0					@ Сравниваем r5 с логической 0 (Проверка на нажатие кнопки pa1)
+ 8000206:	2d00      	cmp	r5, #0
+	it		ne						@ Если не равны
+ 8000208:	bf18      	it	ne
+	bne		pa1						@ Переходим по метке pa0 (скипаем строки 94-98)
+ 800020a:	e008      	bne.n	800021e <pa1>
+	sub		r10, #1					@ r10=r10+1
+ 800020c:	f1aa 0a01 	sub.w	sl, sl, #1
+	cmp		r10, #1					@ Сравниваем r10 и 6
+ 8000210:	f1ba 0f01 	cmp.w	sl, #1
+	it		cc						@ r10 меньше 1
+ 8000214:	bf38      	it	cc
+	addcc	r10, #1					@ Прибавляем 1 к r10
+ 8000216:	f10a 0a01 	addcc.w	sl, sl, #1
+	bl		push_delay				@ Переходим по метке push_delay (Задержка после нажатия)
+ 800021a:	f000 f819 	bl	8000250 <push_delay>
+
+0800021e <pa1>:
+
+	pa1:
+	str		r3, [r0] 	//логическая 1/ на PA5 записываем 1 в PA5 по GPIO_BSRR
+ 800021e:	6003      	str	r3, [r0, #0]
+	bl		delay		@переходим к метке delay (задержка равна ширине импульса)
+ 8000220:	f000 f804 	bl	800022c <delay>
+	str		r4, [r0]	//логический 0 на PA5/ записываем 0 на PA5 	по GPIO_BSRR
+ 8000224:	6004      	str	r4, [r0, #0]
+	bl		delay		//Переходим к метке delay (задержка равна D=T-W*n)
+ 8000226:	f000 f801 	bl	800022c <delay>
+
+	b 		loop						@ возвращаемся к началу цикла
+ 800022a:	e7d6      	b.n	80001da <loop>
+
+0800022c <delay>:
+
+delay:									@ Подпрограмма задержки
+	push	{r0}						@ Загружаем в стек R0, т.к. его значение будем менять
+ 800022c:	b401      	push	{r0}
+	mov32	r6, PERIPH_BB_BASE+ \
+ 800022e:	f240 1614 	movw	r6, #276	; 0x114
+ 8000232:	f2c4 2621 	movt	r6, #16929	; 0x4221
+				(GPIOA_IDR-PERIPH_BASE)*32 + \
+				5*4                     @ в r6 записываем адрес GPIO_IDR_IDR5
+	ldr		r5, [r6]					@ загружаем значение по адресу r6 в r5
+ 8000236:	6835      	ldr	r5, [r6, #0]
+	cmp		r5, #1						@ сравниваем r5 с 1
+ 8000238:	2d01      	cmp	r5, #1
+	ite		eq							@ они равны
+ 800023a:	bf0c      	ite	eq
+	muleq	r9, r10, r11				@да - r9=r10*r11
+ 800023c:	fb0a f90b 	muleq.w	r9, sl, fp
+	mlsne	r9, r10, r11, r12			@нет - r9=r12-(r10*r11)
+ 8000240:	fb0a c91b 	mlsne	r9, sl, fp, ip
+	mov 	r0, r9						@ псевдоинструкция Thumb (загрузить константу в регистр)
+ 8000244:	4648      	mov	r0, r9
+
+08000246 <delay_loop>:
+delay_loop:
+	subs	r0, #1						@ SUB с установкой флагов результата
+ 8000246:	3801      	subs	r0, #1
+	it 		NE							@ if(ложь)
+ 8000248:	bf18      	it	ne
+	bne		delay_loop					@ переход, если Z==0 (результат вычитания не равен нулю)
+ 800024a:	e7fc      	bne.n	8000246 <delay_loop>
+	pop		{r0}						@ Выгружаем из стека R0
+ 800024c:	bc01      	pop	{r0}
+	bx		lr							@ выход из подпрограммы (переход к адресу в регистре LR - вершина стека)
+ 800024e:	4770      	bx	lr
+
+08000250 <push_delay>:
+
+push_delay:
+	push	{r0}						@загружаем r0 в стек
+ 8000250:	b401      	push	{r0}
+	mov32 	r0, #2000000				@записываем в r0 число
+ 8000252:	f248 4080 	movw	r0, #33920	; 0x8480
+ 8000256:	f2c0 001e 	movt	r0, #30
+
+0800025a <push_delay_loop>:
+push_delay_loop:
+	subs	r0, #1						@SUB с установкой флагов результата
+ 800025a:	3801      	subs	r0, #1
+	it 		NE							@if(ложь)
+ 800025c:	bf18      	it	ne
+	bne		push_delay_loop
+ 800025e:	e7fc      	bne.n	800025a <push_delay_loop>
+	pop		{r0}
+ 8000260:	bc01      	pop	{r0}
+	bx		lr
+ 8000262:	4770      	bx	lr
+	ldr  	r0, =_estack
+ 8000264:	20005000 	.word	0x20005000
+
+08000268 <ADC1_2_IRQHandler>:
+ * @retval : None
+*/
+  .section .text.Default_Handler,"ax",%progbits
+Default_Handler:
+Infinite_Loop:
+  b Infinite_Loop
+ 8000268:	e7fe      	b.n	8000268 <ADC1_2_IRQHandler>
+	...
+
+0800026c <_init>:
+ 800026c:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+ 800026e:	bf00      	nop
+ 8000270:	bcf8      	pop	{r3, r4, r5, r6, r7}
+ 8000272:	bc08      	pop	{r3}
+ 8000274:	469e      	mov	lr, r3
+ 8000276:	4770      	bx	lr
+
+08000278 <_fini>:
+ 8000278:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+ 800027a:	bf00      	nop
+ 800027c:	bcf8      	pop	{r3, r4, r5, r6, r7}
+ 800027e:	bc08      	pop	{r3}
+ 8000280:	469e      	mov	lr, r3
+ 8000282:	4770      	bx	lr
